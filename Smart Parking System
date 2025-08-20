@@ -1,0 +1,46 @@
+#define BLYNK_TEMPLATE_ID "YourTemplateID"
+#define BLYNK_DEVICE_NAME "SmartParking"
+#define BLYNK_AUTH_TOKEN  "YourAuthToken"
+
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+char ssid[] = "YourWiFiName";
+char pass[] = "YourWiFiPassword";
+#define TRIG_PIN D5
+#define ECHO_PIN D6
+
+long duration;
+int distance;
+#define VPIN V1  
+
+void setup() {
+  Serial.begin(9600);
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+}
+
+void loop() {
+  Blynk.run();
+  
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  duration = pulseIn(ECHO_PIN, HIGH);
+  distance = duration * 0.034 / 2;
+  Serial.print("Distance: ");
+  Serial.println(distance);
+
+if (distance < 15) {  
+    Serial.println("Status: Occupied");
+    Blynk.virtualWrite(VPIN, "Occupied");
+  } else {
+    Serial.println("Status: Free");
+    Blynk.virtualWrite(VPIN, "Free");
+  }
+
+  delay(2000); 
+}
